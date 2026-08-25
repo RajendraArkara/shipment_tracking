@@ -8,8 +8,8 @@ import (
 
 type ShipmentObject struct {
 	ShipmentID    string     `json:"shipment_id"`
-	OrderID       string     `json:"order_id"`
-	CarrierID     string     `json:"carrier_id"`
+	OrderID       *string    `json:"order_id"`
+	CarrierID     *string    `json:"carrier_id"`
 	Origin        string     `json:"origin"`
 	Destination   string     `json:"destination"`
 	CurrentStatus string     `json:"current_status"`

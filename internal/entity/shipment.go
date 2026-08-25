@@ -4,8 +4,8 @@ import "time"
 
 type Shipment struct {
 	ShipmentID    string
-	OrderID       string
-	CarrierID     string
+	OrderID       *string
+	CarrierID     *string
 	Origin        string
 	Destination   string
 	CurrentStatus string

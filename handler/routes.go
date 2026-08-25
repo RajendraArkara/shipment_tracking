@@ -7,6 +7,7 @@ import (
 
 func Shipments(server *gin.Engine, h *shipmentsHttp.ShipmentHandler) {
 	//shipments
-
 	server.GET("/shipments/all", h.GetAll)
+	server.GET("/shipments/:id", h.GetByID)
+	server.POST("/shipments", h.Create)
 }
