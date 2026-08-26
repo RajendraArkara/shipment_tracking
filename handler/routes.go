@@ -1,7 +1,8 @@
 package handler
 
 import (
-	shipmentsHttp "github.com/RajendraArkara/shipment_tracking/handler/v1/shipment/http"
+	shipmentEventsHttp "github.com/RajendraArkara/shipment_tracking/handler/v1/shipment_events/http"
+	shipmentsHttp "github.com/RajendraArkara/shipment_tracking/handler/v1/shipments/http"
 	"github.com/gin-gonic/gin"
 )
 
@@ -10,4 +11,9 @@ func Shipments(server *gin.Engine, h *shipmentsHttp.ShipmentHandler) {
 	server.GET("/shipments/all", h.GetAll)
 	server.GET("/shipments/:id", h.GetByID)
 	server.POST("/shipments", h.Create)
+}
+
+func ShipmentEvents(server *gin.Engine, h *shipmentEventsHttp.ShipmentEventsHandler) {
+	//shipmentEvents
+	server.GET("/shipments/:id/history", h.GetByShipmentID)
 }
