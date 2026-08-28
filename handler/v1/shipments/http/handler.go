@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/RajendraArkara/shipment_tracking/internal/entity"
 	"github.com/RajendraArkara/shipment_tracking/internal/usecase"
 	"github.com/gin-gonic/gin"
 )
@@ -93,5 +94,42 @@ func (h *ShipmentHandler) Create(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusCreated, gin.H{
 		"shipment": parse,
+	})
+}
+
+func (h *ShipmentHandler) UpdateStatus(ctx *gin.Context) {
+	shipmentsID := ctx.Param("id")
+
+	var req UpdateStatusShipmentRequest
+
+	err := ctx.ShouldBindJSON(&req)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": "invalid request body",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	updateShipment, err := h.UC.UpdateStatus(ctx.Request.Context(), shipmentsID, req.Status, req.Location, req.Notes)
+	if err != nil {
+		if errors.Is(err, entity.ErrorInvalid) {
+			ctx.JSON(http.StatusUnprocessableEntity, gin.H{
+				"message": "invalid status transition",
+				"error":   err.Error(),
+			})
+			return
+		}
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"message": "could not update status",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	parse := ShipmentObject{}.ParseFromEntity(*updateShipment)
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"update": parse,
 	})
 }

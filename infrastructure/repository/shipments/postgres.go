@@ -114,3 +114,31 @@ func (r *PostgresRepository) Create(ctx context.Context, data *entity.Shipment) 
 
 	return data, nil
 }
+
+func (r *PostgresRepository) UpdateStatus(ctx context.Context, shipmentID, newStatus string) (*entity.Shipment, error) {
+	query := `
+		UPDATE shipments 
+		SET current_status = $1, updated_at = now()
+		WHERE id = $2
+		RETURNING id, order_id, carrier_id, origin, destination, current_status, eta, created_at, updated_at
+	`
+
+	var shipment entity.Shipment
+
+	err := r.db.QueryRowContext(ctx, query, newStatus, shipmentID).Scan(
+		&shipment.ShipmentID,
+		&shipment.OrderID,
+		&shipment.CarrierID,
+		&shipment.Origin,
+		&shipment.Destination,
+		&shipment.CurrentStatus,
+		&shipment.Eta,
+		&shipment.CreatedAt,
+		&shipment.UpdatedAt,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return &shipment, nil
+}

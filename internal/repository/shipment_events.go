@@ -8,4 +8,5 @@ import (
 
 type ShipmentEventRepository interface {
 	GetByShipmentID(ctx context.Context, ShipmentEventID string) ([]entity.ShipmentEvent, error)
+	Create(ctx context.Context, data *entity.ShipmentEvent) error
 }

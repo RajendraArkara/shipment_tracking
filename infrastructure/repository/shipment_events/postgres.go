@@ -60,3 +60,13 @@ func (r *PostgresRepository) GetByShipmentID(ctx context.Context, ShipmentEventI
 
 	return shipmentevents, nil
 }
+
+func (r *PostgresRepository) Create(ctx context.Context, data *entity.ShipmentEvent) error {
+	query := `
+		INSERT INTO shipment_events(shipment_id, status, location, notes)
+		VALUES ($1, $2, $3, $4)
+	`
+
+	_, err := r.db.ExecContext(ctx, query, data.ShipmentID, data.Status, data.Location, data.Notes)
+	return err
+}

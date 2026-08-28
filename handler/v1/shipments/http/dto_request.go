@@ -14,6 +14,12 @@ type CreateShipmentRequest struct {
 	Eta         *time.Time `json:"eta"`
 }
 
+type UpdateStatusShipmentRequest struct {
+	Status   string  `json:"status" binding:"required"`
+	Location *string `json:"location"`
+	Notes    *string `json:"notes"`
+}
+
 func (dto CreateShipmentRequest) ToEntity() *entity.Shipment {
 	return &entity.Shipment{
 		OrderID:     dto.OrderID,
