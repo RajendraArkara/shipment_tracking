@@ -23,7 +23,7 @@ func main() {
 	webhookSubscriptionsUseCase := usecase.NewWebhookRepository(webhookSubscriptionsRepo)
 	webhookHandler := webhookSubscriptionsHttp.NewHandler(webhookSubscriptionsUseCase)
 
-	shipmentUseCase := usecase.NewShipmentRepository(shipmentRepo, shipmentEventsRepo)
+	shipmentUseCase := usecase.NewShipmentRepository(shipmentRepo, shipmentEventsRepo, webhookSubscriptionsRepo)
 	shipmentHandler := shipmentsHttp.NewHandler(shipmentUseCase)
 
 	shipmentEventsUseCase := usecase.NewShipmentEventsRepository(shipmentEventsRepo)
