@@ -1,9 +1,14 @@
 package usecase
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
+	"log"
+	"net/http"
 
 	"github.com/RajendraArkara/shipment_tracking/internal/entity"
+	"github.com/RajendraArkara/shipment_tracking/internal/entity/dto"
 	"github.com/RajendraArkara/shipment_tracking/internal/repository"
 )
 
@@ -17,12 +22,14 @@ type IShipmentUseCase interface {
 type ShipmentUseCase struct {
 	Repo              repository.ShipmentRepository
 	ShipmentEventRepo repository.ShipmentEventRepository
+	WebhooksSubsRepo  repository.WebhookSubscriptionsRepository
 }
 
-func NewShipmentRepository(repo repository.ShipmentRepository, eventRepo repository.ShipmentEventRepository) IShipmentUseCase {
+func NewShipmentRepository(repo repository.ShipmentRepository, eventRepo repository.ShipmentEventRepository, webHookRepo repository.WebhookSubscriptionsRepository) IShipmentUseCase {
 	return &ShipmentUseCase{
 		Repo:              repo,
 		ShipmentEventRepo: eventRepo,
+		WebhooksSubsRepo:  webHookRepo,
 	}
 }
 
@@ -78,6 +85,23 @@ func (uc *ShipmentUseCase) UpdateStatus(ctx context.Context, shipmentID, newStat
 	updateShipment, err := uc.Repo.UpdateStatus(ctx, shipmentID, newStatus)
 	if err != nil {
 		return nil, err
+	}
+
+	webhooks, err := uc.WebhooksSubsRepo.GetByShipmentID(ctx, shipmentID)
+	if err != nil {
+		log.Printf("gagal mengambil daftar webhook untuk shipment %s: %v", shipmentID, err)
+	} else {
+		payload, err := json.Marshal(dto.WebNotif{ShipmentID: shipmentID, Status: newStatus})
+		if err != nil {
+			log.Printf("gagal marshal payload notifikasi: %v", err)
+		} else {
+			for _, webhook := range webhooks {
+				_, err := http.Post(webhook.TargetUrl, "application/json", bytes.NewBuffer(payload))
+				if err != nil {
+					log.Printf("gagal kirim notifikasi ke %s: %v", webhook.TargetUrl, err)
+				}
+			}
+		}
 	}
 
 	return updateShipment, nil

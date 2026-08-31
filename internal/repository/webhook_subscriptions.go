@@ -8,4 +8,5 @@ import (
 
 type WebhookSubscriptionsRepository interface {
 	Create(ctx context.Context, data *entity.Webhook) (*entity.Webhook, error)
+	GetByShipmentID(ctx context.Context, shipmentID string) ([]entity.Webhook, error)
 }

@@ -40,3 +40,44 @@ func (r *PostgresRepository) Create(ctx context.Context, data *entity.Webhook) (
 	return data, nil
 
 }
+
+func (r *PostgresRepository) GetByShipmentID(ctx context.Context, shipmentID string) ([]entity.Webhook, error) {
+	query := `
+		SELECT id, shipment_id, target_url, secret_key, is_active, created_at
+		FROM webhook_subscriptions
+		WHERE shipment_id = $1 AND is_active = true
+	`
+
+	rows, err := r.db.QueryContext(ctx, query, shipmentID)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var webhooks []entity.Webhook
+
+	for rows.Next() {
+		var webhook entity.Webhook
+
+		err = rows.Scan(
+			&webhook.ID,
+			&webhook.ShipmentID,
+			&webhook.TargetUrl,
+			&webhook.SecretKey,
+			&webhook.IsActive,
+			&webhook.CreatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		webhooks = append(webhooks, webhook)
+	}
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+
+	return webhooks, nil
+}
