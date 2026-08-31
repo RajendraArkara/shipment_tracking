@@ -2,8 +2,10 @@ package db
 
 import (
 	"database/sql"
+	"os"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
+	"github.com/joho/godotenv"
 )
 
 var DB *sql.DB
@@ -11,7 +13,9 @@ var DB *sql.DB
 func InitDB() {
 	var err error
 
-	connStr := "host=localhost port=5432 user=postgres password=password dbname=shipment_tracking sslmode=disable"
+	godotenv.Load()
+
+	connStr := os.Getenv("DATABASE_URL")
 
 	DB, err = sql.Open("pgx", connStr)
 	if err != nil {
